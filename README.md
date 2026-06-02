@@ -50,8 +50,11 @@
 ### مدیریت سفارشات
 ![سفارشات](public/screenshots/admin_orders.png)
 
+
+
 ### پنل کاربری مشتری (پروفایل)
 ![پنل کاربری](public/screenshots/user_profile.png)
 
 ---
 ساخته شده برای ارائه یک تجربه خرید عالی.
+دانیال
