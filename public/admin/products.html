@@ -12,31 +12,27 @@
 </head>
 <body class="bg-gray-100 flex">
     <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
-        <h1 class="text-2xl font-bold mb-8">مدیریت فروشگاه</h1>
-        <nav>
-            <ul class="space-y-4">
-                <li><a href="index.html" class="block hover:text-blue-400">داشبورد</a></li>
-                <li><a href="products.html" class="block text-blue-400">محصولات</a></li>
-                <li><a href="orders.html" class="block hover:text-blue-400">سفارشات</a></li>
-            </ul>
-        </nav>
+        <h1 class="text-2xl font-bold mb-8 text-center">پنل مدیریت</h1>
+        <nav id="sidebar-nav"></nav>
     </div>
 
     <div class="flex-1 p-10">
         <div class="flex justify-between items-center mb-10">
             <h2 class="text-3xl font-bold">محصولات</h2>
-            <button onclick="toggleModal()" class="bg-blue-600 text-white px-4 py-2 rounded">افزودن محصول جدید</button>
+            <button onclick="openCreateModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700">+ افزودن محصول جدید</button>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
             <table class="w-full text-right">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-4">شناسه</th>
+                        <th class="p-4">تصویر</th>
                         <th class="p-4">عنوان</th>
                         <th class="p-4">قیمت</th>
                         <th class="p-4">موجودی</th>
-                        <th class="p-4">وضعیت</th>
+                        <th class="p-4">دسته‌بندی</th>
+                        <th class="p-4">عملیات</th>
                     </tr>
                 </thead>
                 <tbody id="product-table"></tbody>
@@ -45,19 +41,48 @@
     </div>
 
     <!-- Modal -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg w-[500px]">
-            <h3 class="text-xl font-bold mb-4">افزودن محصول</h3>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center overflow-y-auto py-10 z-50">
+        <div class="bg-white p-8 rounded-xl w-[800px] my-auto relative shadow-2xl">
+            <h3 id="modal-title" class="text-2xl font-bold mb-6 text-gray-800">ویرایش محصول</h3>
             <form id="product-form">
-                <input type="text" id="title" placeholder="عنوان محصول" class="w-full border p-2 mb-4 rounded" required>
-                <textarea id="description" placeholder="توضیحات" class="w-full border p-2 mb-4 rounded" required></textarea>
-                <input type="number" id="price" placeholder="قیمت" class="w-full border p-2 mb-4 rounded" required>
-                <input type="number" id="stock" placeholder="موجودی" class="w-full border p-2 mb-4 rounded" required>
-                <input type="text" id="sku" placeholder="SKU" class="w-full border p-2 mb-4 rounded">
-                <select id="category_id" class="w-full border p-2 mb-4 rounded"></select>
-                <div class="flex justify-end space-x-2 space-x-reverse">
-                    <button type="button" onclick="toggleModal()" class="bg-gray-500 text-white px-4 py-2 rounded">انصراف</button>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">ذخیره</button>
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">عنوان محصول</label>
+                        <input type="text" id="title" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">دسته‌بندی</label>
+                        <select id="category_id" class="w-full border p-3 rounded-lg"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">قیمت (تومان)</label>
+                        <input type="number" id="price" class="w-full border p-3 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-1">موجودی</label>
+                        <input type="number" id="stock" class="w-full border p-3 rounded-lg" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">توضیحات</label>
+                    <textarea id="description" class="w-full border p-3 rounded-lg h-24" required></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-600 mb-2">تصاویر (آدرس URL، هر خط یکی)</label>
+                    <textarea id="images" class="w-full border p-3 rounded-lg h-24 font-mono text-xs" placeholder="https://picsum.photos/600/400"></textarea>
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-gray-600 mb-3">ویژگی‌های فنی</label>
+                    <div id="attributes-container" class="space-y-3"></div>
+                    <button type="button" onclick="addAttributeRow()" class="mt-3 text-blue-600 text-sm font-bold hover:underline">+ افزودن ویژگی جدید</button>
+                </div>
+
+                <div class="flex justify-end space-x-3 space-x-reverse border-t pt-6">
+                    <button type="button" onclick="closeModal()" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200">انصراف</button>
+                    <button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700">ذخیره تغییرات</button>
                 </div>
             </form>
         </div>
@@ -65,44 +90,152 @@
 
     <script src="js/admin.js"></script>
     <script>
-        function toggleModal() {
-            document.getElementById('modal').classList.toggle('hidden');
+        const user = JSON.parse(localStorage.getItem('user'));
+        const nav = document.getElementById('sidebar-nav');
+        nav.innerHTML = `
+            <ul class="space-y-4">
+                <li><a href="index.html" class="block py-2 px-4 rounded hover:bg-gray-700">داشبورد</a></li>
+                <li><a href="products.html" class="block py-2 px-4 rounded bg-blue-600 text-white">محصولات</a></li>
+                ${user.role === 'admin' ? `<li><a href="categories.html" class="block py-2 px-4 rounded hover:bg-gray-700">دسته‌بندی‌ها</a></li>` : ''}
+                ${user.role === 'admin' ? `<li><a href="users.html" class="block py-2 px-4 rounded hover:bg-gray-700">کاربران</a></li>` : ''}
+                <li><a href="orders.html" class="block py-2 px-4 rounded hover:bg-gray-700">سفارشات</a></li>
+                <li class="pt-8"><a href="/shop/index.html" class="block py-2 px-4 rounded border border-gray-600 text-center text-sm">مشاهده فروشگاه</a></li>
+            </ul>
+        `;
+
+        function openCreateModal() {
+            document.getElementById('modal-title').innerText = 'افزودن محصول جدید';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('product-form').reset();
+            document.getElementById('attributes-container').innerHTML = '';
+            addAttributeRow();
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function addAttributeRow(name = '', value = '') {
+            const div = document.createElement('div');
+            div.className = 'flex space-x-3 space-x-reverse';
+            div.innerHTML = `
+                <input type="text" placeholder="نام ویژگی (مثلا: رنگ)" class="border p-2 rounded-lg flex-1 attr-name" value="${name}">
+                <input type="text" placeholder="مقدار (مثلا: قرمز)" class="border p-2 rounded-lg flex-1 attr-value" value="${value}">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 font-bold px-2">×</button>
+            `;
+            document.getElementById('attributes-container').appendChild(div);
         }
 
         async function loadProducts() {
             const { data: products } = await admin.fetchProducts();
             const table = document.getElementById('product-table');
             table.innerHTML = products.map(p => `
-                <tr class="border-b">
-                    <td class="p-4">${p.id}</td>
-                    <td class="p-4">${p.title}</td>
-                    <td class="p-4">${p.price.toLocaleString()} تومان</td>
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 text-gray-500">${p.id}</td>
+                    <td class="p-4">
+                        <img src="${p.ProductImages?.[0]?.url || ''}" class="w-12 h-12 object-cover rounded shadow-sm border bg-white">
+                    </td>
+                    <td class="p-4 font-bold text-gray-800">${admin.escapeHTML(p.title)}</td>
+                    <td class="p-4 text-blue-600 font-bold">${p.price.toLocaleString()} تومان</td>
                     <td class="p-4">${p.stock}</td>
-                    <td class="p-4">${p.status}</td>
+                    <td class="p-4 text-gray-600">${admin.escapeHTML(p.Category?.name) || '-'}</td>
+                    <td class="p-4">
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="editProduct(${p.id})" class="text-blue-500 hover:underline">ویرایش</button>
+                            <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:underline">حذف</button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        async function editProduct(id) {
+            const p = await admin.fetchProduct(id);
+            document.getElementById('modal-title').innerText = 'ویرایش محصول: ' + p.title;
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('title').value = p.title;
+            document.getElementById('category_id').value = p.category_id;
+            document.getElementById('price').value = p.price;
+            document.getElementById('stock').value = p.stock;
+            document.getElementById('description').value = p.description;
+            document.getElementById('images').value = p.ProductImages.map(img => img.url).join('\n');
+
+            const container = document.getElementById('attributes-container');
+            container.innerHTML = '';
+            if (p.attributes?.length) {
+                p.attributes.forEach(a => addAttributeRow(a.name, a.value));
+            } else {
+                addAttributeRow();
+            }
+            document.getElementById('modal').classList.remove('hidden');
         }
 
         async function loadCategories() {
             const res = await fetch('/api/categories');
             const cats = await res.json();
             const select = document.getElementById('category_id');
-            select.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            let options = '';
+            cats.forEach(c => {
+                options += `<option value="${c.id}">${c.name}</option>`;
+                if (c.children) {
+                    c.children.forEach(sub => {
+                        options += `<option value="${sub.id}">-- ${sub.name}</option>`;
+                    });
+                }
+            });
+            select.innerHTML = options;
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('آیا از حذف این محصول مطمئن هستید؟')) {
+                await fetch(`/api/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${admin.getToken()}` }
+                });
+                loadProducts();
+            }
         }
 
         document.getElementById('product-form').onsubmit = async (e) => {
             e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const imgUrls = document.getElementById('images').value.split('\n').filter(x => x.trim() !== '');
+            const images = imgUrls.map(url => ({ url }));
+
+            const attrNames = document.querySelectorAll('.attr-name');
+            const attrValues = document.querySelectorAll('.attr-value');
+            const attributes = [];
+            for (let i = 0; i < attrNames.length; i++) {
+                if (attrNames[i].value.trim()) {
+                    attributes.push({ name: attrNames[i].value, value: attrValues[i].value });
+                }
+            }
+
             const data = {
                 title: document.getElementById('title').value,
                 description: document.getElementById('description').value,
                 price: Number(document.getElementById('price').value),
                 stock: Number(document.getElementById('stock').value),
-                sku: document.getElementById('sku').value,
                 category_id: Number(document.getElementById('category_id').value),
+                images,
+                attributes,
                 status: 'active'
             };
-            await admin.createProduct(data);
-            toggleModal();
+
+            const url = id ? `/api/products/${id}` : '/api/products';
+            const method = id ? 'PUT' : 'POST';
+
+            await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${admin.getToken()}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            closeModal();
             loadProducts();
         };
 

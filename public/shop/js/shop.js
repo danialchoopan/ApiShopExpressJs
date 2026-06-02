@@ -1,6 +1,15 @@
 const API_URL = '/api';
 
 const shop = {
+    escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
     async fetchProducts() {
         const res = await fetch(`${API_URL}/products`);
         return await res.json();

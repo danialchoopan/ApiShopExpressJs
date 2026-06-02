@@ -7,228 +7,88 @@ const {
   Category,
   Product,
   ProductImage,
+  ProductAttribute,
 } = require('../models');
 const { makeSlug } = require('../utils/slugify');
 
-async function upsertAdmin() {
-  const full_name = process.env.ADMIN_FULLNAME || 'Admin User';
-  const email = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const rawPass = process.env.ADMIN_PASSWORD || 'admin123';
+async function upsertUsers() {
+  const users = [
+    { full_name: 'مدیر کل (Super Admin)', email: 'admin@example.com', password: 'admin123', role: 'admin' },
+    { full_name: 'مدیر فروش (Sales Manager)', email: 'sales@example.com', password: 'sales123', role: 'sales_manager' },
+    { full_name: 'مشتری تست', email: 'user@example.com', password: 'user123', role: 'customer' }
+  ];
 
-  let admin = await User.findOne({ where: { email } });
-  if (!admin) {
-    const password_hash = await bcrypt.hash(rawPass, 10);
-    admin = await User.create({
-      full_name,
-      email,
-      password_hash,
-      role: 'admin',
-      status: 'active',
-    });
-    console.log(`✅ Admin created: ${email} / ${rawPass}`);
-  } else {
-    if (admin.role !== 'admin') {
-      admin.role = 'admin';
-      await admin.save();
+  for (const u of users) {
+    let user = await User.findOne({ where: { email: u.email } });
+    if (!user) {
+      const password_hash = await bcrypt.hash(u.password, 10);
+      await User.create({ full_name: u.full_name, email: u.email, password_hash, role: u.role, status: 'active' });
+      console.log(`✅ User: ${u.email} (${u.role})`);
     }
-    console.log(`ℹ️ Admin exists: ${email}`);
   }
-  return admin;
 }
 
-async function upsertCustomer() {
-  const full_name = 'Customer User';
-  const email = 'user@example.com';
-  const rawPass = 'user123';
+async function seedData() {
+  const admin = await User.findOne({ where: { role: 'admin' } });
 
-  let user = await User.findOne({ where: { email } });
-  if (!user) {
-    const password_hash = await bcrypt.hash(rawPass, 10);
-    user = await User.create({
-      full_name,
-      email,
-      password_hash,
-      role: 'customer',
-      status: 'active',
-    });
-    console.log(`✅ Customer created: ${email} / ${rawPass}`);
-  }
-  return user;
-}
-
-async function seedCategories(admin) {
-  const base = [
-    'الکترونیک',
-    'پوشاک',
-    'خانه و آشپزخانه',
+  // Categories
+  const cats = [
+    { name: 'کالای دیجیتال', sub: ['موبایل', 'لپ‌تاپ', 'هدفون'] },
+    { name: 'مد و پوشاک', sub: ['مردانه', 'زنانه'] },
+    { name: 'خانه و آشپزخانه', sub: ['لوازم برقی'] },
   ];
 
-  const count = await Category.count();
-  if (count > 0) {
-    console.log('ℹ️ Categories already present, skip seeding.');
-    return await Category.findAll();
+  for (const c of cats) {
+    const parent = await Category.create({ name: c.name, slug: makeSlug(c.name), created_by_user_id: admin.id });
+    for (const s of c.sub) {
+      await Category.create({ name: s, slug: makeSlug(s), parent_id: parent.id, created_by_user_id: admin.id });
+    }
   }
 
-  const rows = await Promise.all(
-    base.map(name => Category.create({
-      name,
-      slug: makeSlug(name),
-      parent_id: null,
-      created_by_user_id: admin.id
-    }))
-  );
-  console.log(`✅ Seeded ${rows.length} categories`);
-  return rows;
-}
+  const mobileCat = await Category.findOne({ where: { name: 'موبایل' } });
+  const laptopCat = await Category.findOne({ where: { name: 'لپ‌تاپ' } });
 
-async function seedProducts(admin, categories) {
-  const data = [
+  // Products
+  const products = [
     {
-      title: 'گوشی موبایل مدل X',
-      description: 'گوشی اقتصادی با باتری قوی',
-      price: 8500000,
-      stock: 20,
-      sku: 'PHN-X-001',
-      status: 'active',
-      categoryName: 'الکترونیک',
-      images: [{ url: 'https://picsum.photos/seed/phone/600/400', alt: 'phone' }],
+      title: 'گوشی موبایل سامسونگ مدل Galaxy S23 Ultra',
+      price: 52000000,
+      cat: mobileCat.id,
+      imgs: ['https://picsum.photos/seed/s23/600/600', 'https://picsum.photos/seed/s23b/600/600'],
+      attrs: [{n:'رم', v:'۱۲ گیگابایت'}, {n:'حافظه', v:'۲۵۶ گیگابایت'}, {n:'رنگ', v:'سبز'}]
     },
     {
-      title: 'تی‌شرت کتان',
-      description: 'راحت و سبک',
-      price: 350000,
-      stock: 100,
-      sku: 'TSH-CTN-001',
-      status: 'active',
-      categoryName: 'پوشاک',
-      images: [{ url: 'https://picsum.photos/seed/tshirt/600/400', alt: 'tshirt' }],
+      title: 'لپ‌تاپ اپل مدل MacBook Pro M2',
+      price: 84000000,
+      cat: laptopCat.id,
+      imgs: ['https://picsum.photos/seed/mac/600/600'],
+      attrs: [{n:'پردازنده', v:'M2'}, {n:'رم', v:'۱۶ گیگابایت'}]
     },
     {
-      title: 'کتری برقی',
-      description: 'توان 2000 وات با قطع‌کن خودکار',
-      price: 1200000,
-      stock: 35,
-      sku: 'KET-ELC-001',
-      status: 'active',
-      categoryName: 'خانه و آشپزخانه',
-      images: [{ url: 'https://picsum.photos/seed/kettle/600/400', alt: 'kettle' }],
-    },
-    {
-      title: 'لپ‌تاپ گیمینگ G5',
-      description: 'قدرتمند برای بازی و کارهای سنگین',
-      price: 45000000,
-      stock: 5,
-      sku: 'LTP-G5-002',
-      status: 'active',
-      categoryName: 'الکترونیک',
-      images: [{ url: 'https://picsum.photos/seed/laptop/600/400', alt: 'laptop' }],
-    },
-    {
-      title: 'هدفون بی‌سیم',
-      description: 'کیفیت صدای عالی با حذف نویز',
-      price: 2500000,
-      stock: 50,
-      sku: 'HDP-WLS-003',
-      status: 'active',
-      categoryName: 'الکترونیک',
-      images: [{ url: 'https://picsum.photos/seed/headphone/600/400', alt: 'headphone' }],
-    },
-    {
-      title: 'شلوار لی مردانه',
-      description: 'جنس ترک با دوام بالا',
-      price: 850000,
-      stock: 40,
-      sku: 'PNTS-DNM-002',
-      status: 'active',
-      categoryName: 'پوشاک',
-      images: [{ url: 'https://picsum.photos/seed/jeans/600/400', alt: 'jeans' }],
-    },
-    {
-      title: 'هودی زمستانی',
-      description: 'گرم و نرم در رنگ‌های متنوع',
-      price: 650000,
-      stock: 60,
-      sku: 'HOD-WNT-003',
-      status: 'active',
-      categoryName: 'پوشاک',
-      images: [{ url: 'https://picsum.photos/seed/hoodie/600/400', alt: 'hoodie' }],
-    },
-    {
-      title: 'جاروبرقی بوش',
-      description: 'مکش فوق‌العاده با فیلتر هپا',
-      price: 7500000,
-      stock: 15,
-      sku: 'VAC-BSH-002',
-      status: 'active',
-      categoryName: 'خانه و آشپزخانه',
-      images: [{ url: 'https://picsum.photos/seed/vacuum/600/400', alt: 'vacuum' }],
-    },
-    {
-      title: 'ست قابلمه چدن',
-      description: '۱۰ پارچه با پوشش نانو',
-      price: 3200000,
-      stock: 25,
-      sku: 'POT-IRN-003',
-      status: 'active',
-      categoryName: 'خانه و آشپزخانه',
-      images: [{ url: 'https://picsum.photos/seed/pots/600/400', alt: 'pots' }],
-    },
-    {
-      title: 'ساعت هوشمند سری ۷',
-      description: 'پایش سلامت و اعلان‌های هوشمند',
-      price: 1500000,
-      stock: 30,
-      sku: 'WCH-SMT-004',
-      status: 'active',
-      categoryName: 'الکترونیک',
-      images: [{ url: 'https://picsum.photos/seed/watch/600/400', alt: 'watch' }],
-    },
+      title: 'هدفون بی‌سیم سونی مدل WH-1000XM5',
+      price: 14500000,
+      cat: mobileCat.id,
+      imgs: ['https://picsum.photos/seed/sony/600/600'],
+      attrs: [{n:'باتری', v:'۳۰ ساعت'}, {n:'نویز کنسلینگ', v:'دارد'}]
+    }
   ];
 
-  const byName = new Map(categories.map(c => [c.name, c]));
-  for (const p of data) {
-    const cat = byName.get(p.categoryName);
-    if (!cat) continue;
-
+  for (const p of products) {
     const product = await Product.create({
-      title: p.title,
-      slug: makeSlug(p.title),
-      description: p.description,
-      price: p.price,
-      stock: p.stock,
-      sku: p.sku,
-      status: p.status,
-      category_id: cat.id,
-      created_by_user_id: admin.id,
+      title: p.title, slug: makeSlug(p.title), description: `توضیحات کامل برای ${p.title} با بهترین کیفیت و گارانتی معتبر.`,
+      price: p.price, stock: 15, category_id: p.cat, created_by_user_id: admin.id
     });
-    if (p.images?.length) {
-      await ProductImage.bulkCreate(
-        p.images.map((img, i) => ({
-          product_id: product.id,
-          url: img.url,
-          alt: img.alt || null,
-          sort_order: i,
-        }))
-      );
-    }
+    await ProductImage.bulkCreate(p.imgs.map((url, i) => ({ product_id: product.id, url, sort_order: i })));
+    await ProductAttribute.bulkCreate(p.attrs.map(a => ({ product_id: product.id, name: a.n, value: a.v })));
   }
-  console.log('✅ Seeded sample products (with images)');
 }
 
 (async () => {
   try {
     await sequelize.sync({ force: true });
-    console.log('🔁 Database synced (forced)');
-
-    const admin = await upsertAdmin();
-    await upsertCustomer();
-    const categories = await seedCategories(admin);
-    await seedProducts(admin, categories);
-
-    console.log('🎉 Seeding completed.');
+    await upsertUsers();
+    await seedData();
+    console.log('🎉 Final Seeding Successful');
     process.exit(0);
-  } catch (e) {
-    console.error('❌ Seed failed:', e);
-    process.exit(1);
-  }
+  } catch (e) { console.error(e); process.exit(1); }
 })();

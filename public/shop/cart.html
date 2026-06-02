@@ -11,16 +11,36 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg p-4 mb-8">
+    <nav class="bg-white shadow-sm border-b p-4 mb-8">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-blue-600">فروشگاه من</a>
+            <a href="index.html" class="text-2xl font-black text-red-600">دیجی کالا مینی</a>
         </div>
     </nav>
 
     <div class="container mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-6">سبد خرید شما</h1>
-        <div id="cart-content" class="bg-white p-6 rounded-lg shadow-md">
-            <!-- Cart items will be loaded here -->
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="flex-1">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h1 class="text-2xl font-bold mb-6">سبد خرید</h1>
+                    <div id="cart-items" class="space-y-6">
+                        <!-- Items -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-96">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 sticky top-24">
+                    <div class="flex justify-between mb-4 text-gray-600">
+                        <span>قیمت کالاها</span>
+                        <span id="subtotal">۰ تومان</span>
+                    </div>
+                    <div class="flex justify-between mb-6 font-bold text-lg border-t pt-4">
+                        <span>جمع کل</span>
+                        <span id="total" class="text-red-600">۰ تومان</span>
+                    </div>
+                    <a href="checkout.html" class="block w-full bg-red-500 text-white text-center py-4 rounded-xl font-bold hover:bg-red-600 transition shadow-lg shadow-red-100">تایید و ادامه سفارش</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -28,41 +48,52 @@
     <script>
         async function loadCart() {
             const data = await shop.getCart();
-            const container = document.getElementById('cart-content');
+            const container = document.getElementById('cart-items');
             if (!data || !data.items || data.items.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-600">سبد خرید شما خالی است.</p>';
+                container.innerHTML = '<div class="text-center py-10"><p class="text-gray-500 mb-4">سبد خرید شما فعلاً خالی است!</p><a href="index.html" class="text-red-500 font-bold">مشاهده محصولات</a></div>';
+                document.getElementById('subtotal').innerText = '۰ تومان';
+                document.getElementById('total').innerText = '۰ تومان';
                 return;
             }
 
-            container.innerHTML = `
-                <table class="w-full text-right mb-6">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="py-2">محصول</th>
-                            <th class="py-2">قیمت واحد</th>
-                            <th class="py-2">تعداد</th>
-                            <th class="py-2">جمع</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.items.map(it => `
-                            <tr class="border-b">
-                                <td class="py-4">${it.Product.title}</td>
-                                <td class="py-4">${it.unit_price.toLocaleString()} تومان</td>
-                                <td class="py-4">${it.quantity}</td>
-                                <td class="py-4">${(it.quantity * it.unit_price).toLocaleString()} تومان</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div class="flex justify-between items-center font-bold text-xl">
-                    <span>جمع کل:</span>
-                    <span>${data.total.toLocaleString()} تومان</span>
+            container.innerHTML = data.items.map(it => `
+                <div class="flex items-center space-x-4 space-x-reverse border-b pb-6">
+                    <img src="${it.Product.ProductImages?.[0]?.url || 'https://via.placeholder.com/150'}" class="w-24 h-24 object-contain border rounded-lg p-2">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 mb-2">${it.Product.title}</h3>
+                        <div class="text-red-600 font-bold">${it.unit_price.toLocaleString()} تومان</div>
+                    </div>
+                    <div class="flex items-center border rounded-lg px-2 py-1">
+                        <button onclick="updateQty(${it.product_id}, ${it.quantity + 1})" class="text-red-500 font-bold px-2">+</button>
+                        <span class="px-4 font-bold">${it.quantity}</span>
+                        <button onclick="updateQty(${it.product_id}, ${it.quantity - 1})" class="text-red-500 font-bold px-2">-</button>
+                    </div>
+                    <button onclick="removeItem(${it.product_id})" class="text-gray-400 hover:text-red-500">🗑️</button>
                 </div>
-                <div class="mt-8">
-                    <a href="checkout.html" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 block text-center">ادامه فرآیند خرید</a>
-                </div>
-            `;
+            `).join('');
+
+            document.getElementById('subtotal').innerText = data.total.toLocaleString() + ' تومان';
+            document.getElementById('total').innerText = data.total.toLocaleString() + ' تومان';
+        }
+
+        async function updateQty(pid, qty) {
+            if (qty < 1) return removeItem(pid);
+            const token = shop.getToken();
+            await fetch(`/api/carts/items/${pid}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ quantity: qty })
+            });
+            loadCart();
+        }
+
+        async function removeItem(pid) {
+            const token = shop.getToken();
+            await fetch(`/api/carts/items/${pid}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            loadCart();
         }
 
         loadCart();

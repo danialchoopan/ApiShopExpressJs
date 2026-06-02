@@ -1,6 +1,15 @@
 const API_URL = '/api';
 
 const admin = {
+    escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
     getToken() {
         return localStorage.getItem('token');
     },
@@ -40,6 +49,10 @@ const admin = {
             },
             body: JSON.stringify({ status })
         });
+        return await res.json();
+    },
+    async fetchProduct(id) {
+        const res = await fetch(`${API_URL}/products/${id}`);
         return await res.json();
     }
 };
