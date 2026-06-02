@@ -1,102 +1,34 @@
-# NodeShop API Documentation
+# NodeShop API Documentation (Advanced)
 
-این مستند برای توسعه‌دهندگان موبایل و کسانی که می‌خواهند از API فروشگاه استفاده کنند تهیه شده است.
+این مستند برای توسعه‌دهندگان اپلیکیشن موبایل تهیه شده است.
 
-## اطلاعات پایه
+## احراز هویت
 - **Base URL:** `/api`
-- **Content-Type:** `application/json`
+- **هدر مورد نیاز:** `Authorization: Bearer <TOKEN>`
 
-## احراز هویت (Authentication)
-تمامی درخواست‌هایی که نیاز به احراز هویت دارند باید هدر زیر را داشته باشند:
-`Authorization: Bearer <your_token>`
+## مدیریت کاربران (فقط Super Admin)
+- `GET /users`: لیست تمامی کاربران.
+- `PUT /users/:id`: بروزرسانی نقش یا وضعیت کاربر.
+- `DELETE /users/:id`: حذف حساب کاربری.
 
-### ۱. ثبت نام
-- **URL:** `/auth/register`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "full_name": "نام شما",
-    "email": "email@example.com",
-    "password": "password123"
-  }
-  ```
+## محصولات
+- `GET /products`: لیست محصولات (دارای فیلتر `category_id` و جستجوی `q`).
+- `GET /products/:id`: جزئیات کامل محصول شامل تصاویر (`ProductImages`) و ویژگی‌ها (`attributes`).
+- `POST /products`: ایجاد محصول (نیاز به نقش ادمین/مدیر فروش). شامل آرایه `images` و `attributes`.
+- `PUT /products/:id`: ویرایش کامل محصول.
+- `DELETE /products/:id`: حذف محصول.
 
-### ۲. ورود
-- **URL:** `/auth/login`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "email": "email@example.com",
-    "password": "password123"
-  }
-  ```
-- **Response:** شامل `token` و اطلاعات کاربر.
+## دسته‌بندی‌ها
+- `GET /categories`: لیست درختی دسته‌بندی‌ها (دسته اصلی + زیردسته).
+- `POST /categories`: ایجاد دسته جدید.
+- `PUT /categories/:id`: ویرایش نام یا تغییر والد.
+- `DELETE /categories/:id`: حذف دسته.
 
----
-
-## محصولات (Products)
-
-### ۱. لیست محصولات
-- **URL:** `/products`
-- **Method:** `GET`
-- **Query Params:** `page`, `limit`, `category_id`, `q` (جستجو)
-
-### ۲. جزئیات محصول
-- **URL:** `/products/:id`
-- **Method:** `GET`
-
----
-
-## سبد خرید (Cart)
-
-### ۱. دریافت سبد خرید
-- **URL:** `/carts`
-- **Method:** `GET` (نیاز به توکن)
-
-### ۲. افزودن به سبد
-- **URL:** `/carts/items`
-- **Method:** `POST`
-- **Body:** `{"product_id": 1, "quantity": 1}`
-
----
-
-## سفارشات (Orders)
-
-### ۱. ثبت سفارش از سبد خرید
-- **URL:** `/orders/from-cart`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "shipping_address_id": 1,
-    "billing_address_id": 1
-  }
-  ```
-
-### ۲. لیست سفارشات من
-- **URL:** `/orders/me`
-- **Method:** `GET`
-
----
-
-## آدرس‌ها (Addresses)
-
-### ۱. لیست آدرس‌های کاربر
-- **URL:** `/addresses`
-- **Method:** `GET`
-
-### ۲. افزودن آدرس جدید
-- **URL:** `/addresses`
-- **Method:** `POST`
-- **Body:**
-  ```json
-  {
-    "full_name": "نام گیرنده",
-    "line1": "آدرس دقیق",
-    "city": "تهران",
-    "province": "تهران",
-    "phone": "0912..."
-  }
-  ```
+## سبد خرید و سفارشات
+- `GET /carts`: دریافت سبد فعلی.
+- `POST /carts/items`: افزودن کالا.
+- `PUT /carts/items/:productId`: تغییر تعداد (quantity).
+- `DELETE /carts/items/:productId`: حذف از سبد.
+- `POST /orders/from-cart`: نهایی کردن سفارش.
+- `GET /orders/me`: تاریخچه سفارشات کاربر.
+- `GET /orders/stats`: (ادمین) آمار کلی فروشگاه.

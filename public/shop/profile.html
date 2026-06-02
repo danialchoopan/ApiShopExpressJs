@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب کاربری - دانیال دیجی</title>
+    <script src="/assets/js/tailwind.js"></script>
+        <link rel="stylesheet" href="/assets/css/vazirmatn.css">
+    <style>body { font-family: "Vazirmatn", sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-sm border-b p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-black text-blue-600">دانیال دیجی</a>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <a href="index.html" class="text-gray-600">بازگشت به فروشگاه</a>
+                <button onclick="shop.logout()" class="text-red-500">خروج</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 mt-10 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 space-y-4">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <p id="user-display-name" class="font-bold text-lg text-gray-800 mb-1"></p>
+                <p id="user-display-email" class="text-sm text-gray-500"></p>
+            </div>
+            <nav class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <button onclick="showSection('orders')" class="w-full text-right p-4 hover:bg-gray-50 border-b">سفارشات من</button>
+                <button onclick="showSection('settings')" class="w-full text-right p-4 hover:bg-gray-50">تغییر رمز عبور</button>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1">
+            <section id="orders-section" class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold mb-6">تاریخچه سفارشات</h2>
+                <div id="orders-list" class="space-y-4">
+                    <!-- Orders -->
+                </div>
+            </section>
+
+            <section id="settings-section" class="hidden bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold mb-6">تغییر رمز عبور</h2>
+                <form id="change-pass-form" class="max-w-md">
+                    <div class="mb-4">
+                        <label class="block text-sm text-gray-600 mb-1">رمز عبور فعلی</label>
+                        <input type="password" id="current-pass" class="w-full border p-2 rounded-lg" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm text-gray-600 mb-1">رمز عبور جدید</label>
+                        <input type="password" id="new-pass" class="w-full border p-2 rounded-lg" required>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">بروزرسانی رمز عبور</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/shop.js"></script>
+    <script>
+        const user = shop.getUser();
+        if (!user) window.location.href = 'login.html';
+
+        document.getElementById('user-display-name').innerText = user.full_name;
+        document.getElementById('user-display-email').innerText = user.email;
+
+        function showSection(id) {
+            document.getElementById('orders-section').classList.add('hidden');
+            document.getElementById('settings-section').classList.add('hidden');
+            document.getElementById(id + '-section').classList.remove('hidden');
+        }
+
+        async function loadOrders() {
+            const orders = await shop.getMyOrders();
+            const list = document.getElementById('orders-list');
+            if (!orders || orders.length === 0) {
+                list.innerHTML = '<p class="text-gray-400">سفارشی یافت نشد.</p>';
+                return;
+            }
+            list.innerHTML = orders.map(o => `
+                <div class="border p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">${o.order_number}</p>
+                        <p class="text-sm text-gray-500">${new Date(o.createdAt).toLocaleDateString('fa-IR')}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-blue-600">${o.total.toLocaleString()} تومان</p>
+                        <p class="text-xs ${o.status === 'pending' ? 'text-yellow-600' : 'text-green-600'}">${o.status}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('change-pass-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('current-pass').value;
+            const newPassword = document.getElementById('new-pass').value;
+            const token = shop.getToken();
+
+            const res = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (res.ok) e.target.reset();
+        };
+
+        loadOrders();
+    </script>
+</body>
+</html>

@@ -2,15 +2,40 @@ const { User } = require('../models');
 
 exports.list = async (req, res, next) => {
   try {
-    const items = await User.findAll({ attributes: ['id','full_name','email','role','status','createdAt'] });
+    const items = await User.findAll({ attributes: ['id', 'full_name', 'email', 'role', 'status', 'createdAt'] });
     res.json(items);
   } catch (e) { next(e); }
 };
 
 exports.getById = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.params.id, { attributes: ['id','full_name','email','role','status','createdAt'] });
+    const user = await User.findByPk(req.params.id, { attributes: ['id', 'full_name', 'email', 'role', 'status', 'createdAt'] });
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
+  } catch (e) { next(e); }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const { full_name, email, role, status } = req.body;
+    if (full_name) user.full_name = full_name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (status) user.status = status;
+
+    await user.save();
+    res.json(user);
+  } catch (e) { next(e); }
+};
+
+exports.remove = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    await user.destroy();
+    res.status(204).end();
   } catch (e) { next(e); }
 };

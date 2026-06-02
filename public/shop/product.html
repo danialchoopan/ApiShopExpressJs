@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جزئیات محصول - دانیال دیجی</title>
+    <script src="/assets/js/tailwind.js"></script>
+        <link rel="stylesheet" href="/assets/css/vazirmatn.css">
+    <style>body { font-family: "Vazirmatn", sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-sm border-b p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-black text-blue-600">دانیال دیجی</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 mt-10">
+        <div id="product-detail" class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-10">
+            <p class="text-center col-span-full py-20 text-gray-400">در حال بارگذاری...</p>
+        </div>
+
+        <div class="mt-12 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 border-b pb-4">مشخصات فنی</h2>
+            <div id="attributes-table" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script src="js/shop.js"></script>
+    <script>
+        async function loadProduct() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const p = await shop.fetchProduct(id);
+            const container = document.getElementById('product-detail');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden border">
+                        <img id="main-image" src="${p.ProductImages?.[0]?.url || 'https://via.placeholder.com/600'}" class="w-full h-full object-contain p-8">
+                    </div>
+                    <div class="flex space-x-2 space-x-reverse overflow-x-auto pb-2">
+                        ${p.ProductImages.map(img => `
+                            <img src="${img.url}" onclick="document.getElementById('main-image').src='${img.url}'" class="w-20 h-20 border rounded-lg cursor-pointer hover:border-blue-500 bg-white object-contain p-1">
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <nav class="text-sm text-gray-500 mb-4">
+                        ${shop.escapeHTML(p.Category?.name)} / ${shop.escapeHTML(p.title)}
+                    </nav>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-6">${shop.escapeHTML(p.title)}</h1>
+                    <p class="text-gray-600 leading-loose mb-10">${shop.escapeHTML(p.description)}</p>
+
+                    <div class="mt-auto bg-gray-50 p-6 rounded-xl border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-gray-500 block mb-1">قیمت فروش:</span>
+                            <span class="text-3xl font-black text-blue-600">${p.price.toLocaleString()}</span>
+                            <span class="text-gray-600 mr-1 text-sm">تومان</span>
+                        </div>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors">افزودن به سبد</button>
+                    </div>
+                </div>
+            `;
+
+            const attrTable = document.getElementById('attributes-table');
+            if (p.attributes?.length) {
+                attrTable.innerHTML = p.attributes.map(a => `
+                    <div class="flex border-b border-gray-50 py-3">
+                        <div class="w-48 text-gray-500">${shop.escapeHTML(a.name)}</div>
+                        <div class="font-bold text-gray-800">${shop.escapeHTML(a.value)}</div>
+                    </div>
+                `).join('');
+            } else {
+                attrTable.innerHTML = '<p class="text-gray-400">مشخصاتی ثبت نشده است.</p>';
+            }
+        }
+
+        async function addToCart(id) {
+            const res = await shop.addToCart(id, 1);
+            if (res.id) alert('به سبد خرید اضافه شد');
+        }
+
+        loadProduct();
+    </script>
+</body>
+</html>

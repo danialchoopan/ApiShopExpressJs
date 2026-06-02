@@ -27,7 +27,15 @@ exports.login = async (req, res, next) => {
     if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = jwt.sign({ sub: user.id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (e) { next(e); }
 };
 
@@ -35,5 +43,19 @@ exports.me = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.user.id, { attributes: ['id','full_name','email','role','status','createdAt'] });
     res.json(user);
+  } catch (e) { next(e); }
+};
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findByPk(req.user.id);
+
+    const ok = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!ok) return res.status(400).json({ message: 'رمز عبور فعلی اشتباه است' });
+
+    user.password_hash = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: 'رمز عبور با موفقیت تغییر کرد' });
   } catch (e) { next(e); }
 };

@@ -1,12 +1,13 @@
 const { Router } = require('express');
 const ctrl = require('../controllers/user.controller');
 const { auth } = require('../middlewares/auth');
-const { isAdmin } = require('../middlewares/isAdmin');
+const { isSuperAdmin } = require('../middlewares/isAdmin');
 
 const router = Router();
 
-// فقط ادمین: لیست کاربران
-router.get('/', auth, isAdmin, ctrl.list);
-router.get('/:id', auth, isAdmin, ctrl.getById);
+router.get('/', auth, isSuperAdmin, ctrl.list);
+router.get('/:id', auth, isSuperAdmin, ctrl.getById);
+router.put('/:id', auth, isSuperAdmin, ctrl.update);
+router.delete('/:id', auth, isSuperAdmin, ctrl.remove);
 
 module.exports = router;

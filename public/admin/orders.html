@@ -1,39 +1,32 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدیریت سفارشات</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
-        body { font-family: 'Vazirmatn', sans-serif; }
-    </style>
+    <title>مدیریت سفارشات - دانیال دیجی</title>
+    <script src="/assets/js/tailwind.js"></script>
+        <link rel="stylesheet" href="/assets/css/vazirmatn.css">
+    <style>body { font-family: "Vazirmatn", sans-serif; }</style>
 </head>
-<body class="bg-gray-100 flex">
-    <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
-        <h1 class="text-2xl font-bold mb-8">مدیریت فروشگاه</h1>
-        <nav>
-            <ul class="space-y-4">
-                <li><a href="index.html" class="block hover:text-blue-400">داشبورد</a></li>
-                <li><a href="products.html" class="block hover:text-blue-400">محصولات</a></li>
-                <li><a href="orders.html" class="block text-blue-400">سفارشات</a></li>
-            </ul>
-        </nav>
+<body class="bg-gray-50 flex">
+    <div class="w-64 bg-gray-900 text-white min-h-screen p-6 shadow-xl sticky top-0 h-screen">
+        <h1 class="text-2xl font-black text-blue-400 text-center mb-10">پنل مدیریت</h1>
+        <nav id="sidebar-nav"></nav>
     </div>
 
     <div class="flex-1 p-10">
-        <h2 class="text-3xl font-bold mb-10">سفارشات</h2>
+        <h2 class="text-3xl font-bold mb-10">مدیریت سفارشات</h2>
 
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <table class="w-full text-right">
                 <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="p-4">شماره سفارش</th>
-                        <th class="p-4">تاریخ</th>
-                        <th class="p-4">مبلغ کل</th>
-                        <th class="p-4">وضعیت</th>
-                        <th class="p-4">عملیات</th>
+                        <th class="p-4 text-sm text-gray-500">شماره سفارش</th>
+                        <th class="p-4 text-sm text-gray-500">تاریخ</th>
+                        <th class="p-4 text-sm text-gray-500">مبلغ کل</th>
+                        <th class="p-4 text-sm text-gray-500">وضعیت</th>
+                        <th class="p-4 text-sm text-gray-500">عملیات</th>
                     </tr>
                 </thead>
                 <tbody id="order-table"></tbody>
@@ -41,26 +34,71 @@
         </div>
     </div>
 
+    <!-- Order Detail Modal -->
+    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl w-[600px] shadow-2xl relative">
+            <h3 class="text-2xl font-bold mb-6">جزئیات سفارش</h3>
+            <div id="order-items" class="space-y-4 mb-8 max-h-96 overflow-y-auto"></div>
+            <div class="flex justify-end border-t pt-6">
+                <button onclick="closeModal()" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg">بستن</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin.js"></script>
     <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const nav = document.getElementById('sidebar-nav');
+        nav.innerHTML = `
+            <ul class="space-y-2">
+                <li><a href="index.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">داشبورد</a></li>
+                <li><a href="products.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">محصولات</a></li>
+                ${user.role === "admin" ? `<li><a href="categories.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">دسته‌بندی‌ها</a></li>` : ""}
+                ${user.role === "admin" ? `<li><a href="users.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">کاربران</a></li>` : ""}
+                <li><a href="orders.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">سفارشات</a></li>
+            </ul>
+        `;
+
+        function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
+
         async function loadOrders() {
             const orders = await admin.fetchOrders();
             const table = document.getElementById('order-table');
             table.innerHTML = orders.map(o => `
-                <tr class="border-b">
-                    <td class="p-4">${o.order_number}</td>
-                    <td class="p-4">${new Date(o.createdAt).toLocaleDateString('fa-IR')}</td>
-                    <td class="p-4">${o.total.toLocaleString()} تومان</td>
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 font-mono text-sm">${o.order_number}</td>
+                    <td class="p-4 text-sm text-gray-600">${new Date(o.createdAt).toLocaleDateString('fa-IR')}</td>
+                    <td class="p-4 font-bold text-blue-600">${o.total.toLocaleString()} تومان</td>
                     <td class="p-4">
-                        <span class="px-2 py-1 rounded text-sm ${o.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
-                            ${o.status}
-                        </span>
+                        <select onchange="updateStatus(${o.id}, this.value)" class="text-xs p-1 border rounded bg-white">
+                            <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>در انتظار</option>
+                            <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>تکمیل شده</option>
+                            <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>لغو شده</option>
+                        </select>
                     </td>
                     <td class="p-4">
-                        <button onclick="updateStatus(${o.id}, 'completed')" class="text-blue-600 hover:underline">تکمیل شده</button>
+                        <button onclick="viewOrder(${o.id})" class="text-blue-500 text-sm font-bold hover:underline">مشاهده اقلام</button>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        async function viewOrder(id) {
+            const res = await fetch(`/api/orders/${id}`, {
+                headers: { 'Authorization': `Bearer ${admin.getToken()}` }
+            });
+            const data = await res.json();
+            const container = document.getElementById('order-items');
+            container.innerHTML = data.OrderItems.map(it => `
+                <div class="flex justify-between border-b pb-2">
+                    <div>
+                        <p class="font-bold text-gray-800">${it.title_snapshot}</p>
+                        <p class="text-xs text-gray-400">تعداد: ${it.quantity}</p>
+                    </div>
+                    <p class="text-blue-600 font-bold">${it.unit_price.toLocaleString()} تومان</p>
+                </div>
+            `).join('');
+            document.getElementById('order-modal').classList.remove('hidden');
         }
 
         async function updateStatus(id, status) {

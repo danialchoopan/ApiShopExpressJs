@@ -6,6 +6,7 @@ const UserFactory = require('./user');
 const CategoryFactory = require('./category');
 const ProductFactory = require('./product');
 const ProductImageFactory = require('./productImage');
+const ProductAttributeFactory = require('./productAttribute');
 const AddressFactory = require('./address');
 const CartFactory = require('./cart');
 const CartItemFactory = require('./cartItem');
@@ -17,6 +18,7 @@ const User = UserFactory(sequelize);
 const Category = CategoryFactory(sequelize);
 const Product = ProductFactory(sequelize);
 const ProductImage = ProductImageFactory(sequelize);
+const ProductAttribute = ProductAttributeFactory(sequelize);
 const Address = AddressFactory(sequelize);
 const Cart = CartFactory(sequelize);
 const CartItem = CartItemFactory(sequelize);
@@ -46,6 +48,10 @@ Product.belongsTo(User, { as: 'updatedBy', foreignKey: 'updated_by_user_id' });
 // Product ProductImage
 Product.hasMany(ProductImage, { foreignKey: 'product_id' });
 ProductImage.belongsTo(Product, { foreignKey: 'product_id' });
+
+// Product ProductAttribute
+Product.hasMany(ProductAttribute, { foreignKey: 'product_id', as: 'attributes' });
+ProductAttribute.belongsTo(Product, { foreignKey: 'product_id' });
 
 // User Address
 User.hasMany(Address, { foreignKey: 'user_id' });
@@ -83,6 +89,7 @@ const db = {
   Category,
   Product,
   ProductImage,
+  ProductAttribute,
   Address,
   Cart,
   CartItem,

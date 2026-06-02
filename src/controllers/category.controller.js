@@ -3,14 +3,20 @@ const { makeSlug } = require('../utils/slugify');
 
 exports.list = async (req, res, next) => {
   try {
-    const items = await Category.findAll({ order: [['id','ASC']] });
+    const items = await Category.findAll({
+      where: { parent_id: null },
+      include: [{ model: Category, as: 'children' }],
+      order: [['id', 'ASC']]
+    });
     res.json(items);
   } catch (e) { next(e); }
 };
 
 exports.getById = async (req, res, next) => {
   try {
-    const item = await Category.findByPk(req.params.id);
+    const item = await Category.findByPk(req.params.id, {
+        include: [{ model: Category, as: 'children' }]
+    });
     if (!item) return res.status(404).json({ message: 'Category not found' });
     res.json(item);
   } catch (e) { next(e); }
