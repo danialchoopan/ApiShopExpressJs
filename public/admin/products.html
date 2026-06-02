@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت محصولات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex">
+    <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
+        <h1 class="text-2xl font-bold mb-8">مدیریت فروشگاه</h1>
+        <nav>
+            <ul class="space-y-4">
+                <li><a href="index.html" class="block hover:text-blue-400">داشبورد</a></li>
+                <li><a href="products.html" class="block text-blue-400">محصولات</a></li>
+                <li><a href="orders.html" class="block hover:text-blue-400">سفارشات</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="flex-1 p-10">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-bold">محصولات</h2>
+            <button onclick="toggleModal()" class="bg-blue-600 text-white px-4 py-2 rounded">افزودن محصول جدید</button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="p-4">شناسه</th>
+                        <th class="p-4">عنوان</th>
+                        <th class="p-4">قیمت</th>
+                        <th class="p-4">موجودی</th>
+                        <th class="p-4">وضعیت</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-[500px]">
+            <h3 class="text-xl font-bold mb-4">افزودن محصول</h3>
+            <form id="product-form">
+                <input type="text" id="title" placeholder="عنوان محصول" class="w-full border p-2 mb-4 rounded" required>
+                <textarea id="description" placeholder="توضیحات" class="w-full border p-2 mb-4 rounded" required></textarea>
+                <input type="number" id="price" placeholder="قیمت" class="w-full border p-2 mb-4 rounded" required>
+                <input type="number" id="stock" placeholder="موجودی" class="w-full border p-2 mb-4 rounded" required>
+                <input type="text" id="sku" placeholder="SKU" class="w-full border p-2 mb-4 rounded">
+                <select id="category_id" class="w-full border p-2 mb-4 rounded"></select>
+                <div class="flex justify-end space-x-2 space-x-reverse">
+                    <button type="button" onclick="toggleModal()" class="bg-gray-500 text-white px-4 py-2 rounded">انصراف</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">ذخیره</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        function toggleModal() {
+            document.getElementById('modal').classList.toggle('hidden');
+        }
+
+        async function loadProducts() {
+            const { data: products } = await admin.fetchProducts();
+            const table = document.getElementById('product-table');
+            table.innerHTML = products.map(p => `
+                <tr class="border-b">
+                    <td class="p-4">${p.id}</td>
+                    <td class="p-4">${p.title}</td>
+                    <td class="p-4">${p.price.toLocaleString()} تومان</td>
+                    <td class="p-4">${p.stock}</td>
+                    <td class="p-4">${p.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadCategories() {
+            const res = await fetch('/api/categories');
+            const cats = await res.json();
+            const select = document.getElementById('category_id');
+            select.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        document.getElementById('product-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                price: Number(document.getElementById('price').value),
+                stock: Number(document.getElementById('stock').value),
+                sku: document.getElementById('sku').value,
+                category_id: Number(document.getElementById('category_id').value),
+                status: 'active'
+            };
+            await admin.createProduct(data);
+            toggleModal();
+            loadProducts();
+        };
+
+        loadProducts();
+        loadCategories();
+    </script>
+</body>
+</html>

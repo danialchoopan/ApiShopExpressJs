@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فروشگاه آنلاین</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-lg p-4 mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-blue-600">فروشگاه من</a>
+            <div class="space-x-4 space-x-reverse">
+                <a href="cart.html" class="text-gray-700">سبد خرید</a>
+                <span id="user-nav">
+                    <a href="login.html" class="bg-blue-500 text-white px-4 py-2 rounded">ورود</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold mb-6">محصولات ما</h1>
+        <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <script src="js/shop.js"></script>
+    <script>
+        async function loadProducts() {
+            const { data: products } = await shop.fetchProducts();
+            const list = document.getElementById('product-list');
+            list.innerHTML = products.map(p => `
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="${p.ProductImages?.[0]?.url || 'https://via.placeholder.com/150'}" alt="${p.title}" class="w-full h-48 object-cover mb-4 rounded">
+                    <h2 class="text-xl font-bold mb-2">${p.title}</h2>
+                    <p class="text-gray-600 mb-4 h-12 overflow-hidden">${p.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 font-bold">${p.price.toLocaleString()} تومان</span>
+                        <button onclick="addToCart(${p.id})" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">افزودن</button>
+                    </div>
+                    <a href="product.html?id=${p.id}" class="block text-center mt-4 text-blue-500 underline">مشاهده جزئیات</a>
+                </div>
+            `).join('');
+        }
+
+        async function addToCart(id) {
+            await shop.addToCart(id, 1);
+            alert('به سبد خرید اضافه شد');
+        }
+
+        const user = shop.getUser();
+        if (user) {
+            document.getElementById('user-nav').innerHTML = `
+                <span class="ml-4">${user.full_name}</span>
+                <button onclick="shop.logout()" class="text-red-500 underline">خروج</button>
+            `;
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
+        <h1 class="text-2xl font-bold mb-8">مدیریت فروشگاه</h1>
+        <nav>
+            <ul class="space-y-4">
+                <li><a href="index.html" class="block hover:text-blue-400">داشبورد</a></li>
+                <li><a href="products.html" class="block hover:text-blue-400">محصولات</a></li>
+                <li><a href="orders.html" class="block hover:text-blue-400">سفارشات</a></li>
+                <li><a href="/shop/index.html" class="block hover:text-blue-400 mt-8">مشاهده فروشگاه</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-10">
+        <h2 class="text-3xl font-bold mb-10">داشبورد</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-blue-500">
+                <p class="text-gray-500">کل فروش</p>
+                <h3 id="total-sales" class="text-2xl font-bold">0 تومان</h3>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-green-500">
+                <p class="text-gray-500">تعداد سفارشات</p>
+                <h3 id="total-orders" class="text-2xl font-bold">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-yellow-500">
+                <p class="text-gray-500">سفارشات در انتظار</p>
+                <h3 id="pending-orders" class="text-2xl font-bold">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-purple-500">
+                <p class="text-gray-500">تعداد محصولات</p>
+                <h3 id="total-products" class="text-2xl font-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        async function loadStats() {
+            const stats = await admin.fetchStats();
+            if (stats.message === 'Unauthorized' || stats.message === 'Forbidden') {
+                window.location.href = '/shop/login.html';
+                return;
+            }
+            document.getElementById('total-sales').innerText = (stats.totalSales || 0).toLocaleString() + ' تومان';
+            document.getElementById('total-orders').innerText = stats.totalOrders;
+            document.getElementById('pending-orders').innerText = stats.pendingOrders;
+            document.getElementById('total-products').innerText = stats.productCount;
+        }
+        loadStats();
+    </script>
+</body>
+</html>

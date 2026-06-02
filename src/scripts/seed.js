@@ -36,6 +36,26 @@ async function upsertAdmin() {
   return admin;
 }
 
+async function upsertCustomer() {
+  const full_name = 'Customer User';
+  const email = 'user@example.com';
+  const rawPass = 'user123';
+
+  let user = await User.findOne({ where: { email } });
+  if (!user) {
+    const password_hash = await bcrypt.hash(rawPass, 10);
+    user = await User.create({
+      full_name,
+      email,
+      password_hash,
+      role: 'customer',
+      status: 'active',
+    });
+    console.log(`✅ Customer created: ${email} / ${rawPass}`);
+  }
+  return user;
+}
+
 async function seedCategories(admin) {
   const base = [
     'الکترونیک',
@@ -62,12 +82,6 @@ async function seedCategories(admin) {
 }
 
 async function seedProducts(admin, categories) {
-  const count = await Product.count();
-  if (count > 0) {
-    console.log('ℹ️ Products already present, skip seeding.');
-    return;
-  }
-
   const data = [
     {
       title: 'گوشی موبایل مدل X',
@@ -98,6 +112,76 @@ async function seedProducts(admin, categories) {
       status: 'active',
       categoryName: 'خانه و آشپزخانه',
       images: [{ url: 'https://picsum.photos/seed/kettle/600/400', alt: 'kettle' }],
+    },
+    {
+      title: 'لپ‌تاپ گیمینگ G5',
+      description: 'قدرتمند برای بازی و کارهای سنگین',
+      price: 45000000,
+      stock: 5,
+      sku: 'LTP-G5-002',
+      status: 'active',
+      categoryName: 'الکترونیک',
+      images: [{ url: 'https://picsum.photos/seed/laptop/600/400', alt: 'laptop' }],
+    },
+    {
+      title: 'هدفون بی‌سیم',
+      description: 'کیفیت صدای عالی با حذف نویز',
+      price: 2500000,
+      stock: 50,
+      sku: 'HDP-WLS-003',
+      status: 'active',
+      categoryName: 'الکترونیک',
+      images: [{ url: 'https://picsum.photos/seed/headphone/600/400', alt: 'headphone' }],
+    },
+    {
+      title: 'شلوار لی مردانه',
+      description: 'جنس ترک با دوام بالا',
+      price: 850000,
+      stock: 40,
+      sku: 'PNTS-DNM-002',
+      status: 'active',
+      categoryName: 'پوشاک',
+      images: [{ url: 'https://picsum.photos/seed/jeans/600/400', alt: 'jeans' }],
+    },
+    {
+      title: 'هودی زمستانی',
+      description: 'گرم و نرم در رنگ‌های متنوع',
+      price: 650000,
+      stock: 60,
+      sku: 'HOD-WNT-003',
+      status: 'active',
+      categoryName: 'پوشاک',
+      images: [{ url: 'https://picsum.photos/seed/hoodie/600/400', alt: 'hoodie' }],
+    },
+    {
+      title: 'جاروبرقی بوش',
+      description: 'مکش فوق‌العاده با فیلتر هپا',
+      price: 7500000,
+      stock: 15,
+      sku: 'VAC-BSH-002',
+      status: 'active',
+      categoryName: 'خانه و آشپزخانه',
+      images: [{ url: 'https://picsum.photos/seed/vacuum/600/400', alt: 'vacuum' }],
+    },
+    {
+      title: 'ست قابلمه چدن',
+      description: '۱۰ پارچه با پوشش نانو',
+      price: 3200000,
+      stock: 25,
+      sku: 'POT-IRN-003',
+      status: 'active',
+      categoryName: 'خانه و آشپزخانه',
+      images: [{ url: 'https://picsum.photos/seed/pots/600/400', alt: 'pots' }],
+    },
+    {
+      title: 'ساعت هوشمند سری ۷',
+      description: 'پایش سلامت و اعلان‌های هوشمند',
+      price: 1500000,
+      stock: 30,
+      sku: 'WCH-SMT-004',
+      status: 'active',
+      categoryName: 'الکترونیک',
+      images: [{ url: 'https://picsum.photos/seed/watch/600/400', alt: 'watch' }],
     },
   ];
 
@@ -133,10 +217,11 @@ async function seedProducts(admin, categories) {
 
 (async () => {
   try {
-    await sequelize.sync({ alter: true });
-    console.log('🔁 Database synced');
+    await sequelize.sync({ force: true });
+    console.log('🔁 Database synced (forced)');
 
     const admin = await upsertAdmin();
+    await upsertCustomer();
     const categories = await seedCategories(admin);
     await seedProducts(admin, categories);
 
