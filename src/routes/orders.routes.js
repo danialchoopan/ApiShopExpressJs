@@ -9,6 +9,7 @@ router.get('/me', auth, ctrl.listMyOrders);
 router.post('/from-cart', auth, ctrl.createFromCart);
 
 // admin ops
+router.get('/stats', auth, isAdmin, ctrl.getStats);
 router.get('/', auth, isAdmin, ctrl.listAll);
 router.get('/:id', auth, isAdmin, ctrl.getById);
 router.patch('/:id/status', auth, isAdmin, ctrl.updateStatus);

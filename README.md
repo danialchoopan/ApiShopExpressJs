@@ -1,97 +1,51 @@
-# Shop API (Node.js + Express + Sequelize + SQLite)
+# فروشگاه آنلاین نود (NodeShop)
 
-یک API نمونه فروشگاه اینترنتی با الگوی MVC. شامل احراز هویت JWT، نقش ادمین، دسته‌بندی، محصول، سبد خرید، و سفارش.
+این یک پروژه کامل فروشگاهی شامل API، پنل مدیریت و رابط کاربری فروشگاه است.
 
-## تکنولوژی‌ها
-- Node.js, Express
-- Sequelize (SQLite)
-- JWT Auth
-- ساختار MVC
+## ویژگی‌ها
+- **API کامل:** پیاده‌سازی شده با Express و Sequelize.
+- **پنل مدیریت:** مدیریت محصولات، مشاهده آمار فروش و وضعیت سفارشات.
+- **رابط کاربری فروشگاه:** مشاهده محصولات، سبد خرید، آدرس‌دهی و ثبت سفارش.
+- **سیستم احراز هویت:** بر پایه JWT (ادمین و مشتری).
+- **داده‌های نمونه (Seed):** دارای اسکریپت خودکار برای ایجاد داده‌های اولیه.
 
-## قابلیت‌ها
-- ثبت‌نام/ورود کاربر، پروفایل کاربر جاری
-- مدیریت دسته‌بندی و محصول (ادمین)
-- سبد خرید کاربر و تبدیل سبد به سفارش با ترنزاکشن
-- Seed اولیه: ادمین و چند دسته/محصول نمونه
-- کالکشن Postman آماده
+## نحوه راه‌اندازی
 
-## ساختار پوشه‌ها
-```
-src/
-  app.js, server.js
-  config/ (config.js, db.js)
-  models/ (user, category, product, productImage, address, cart, cartItem, order, orderItem, index)
-  routes/ (auth, users, categories, products, carts, orders, index)
-  controllers/ (...)
-  middlewares/ (auth, isAdmin, errorHandler)
-  validators/ (user, product)
-  utils/ (slugify, pagination)
-  scripts/ (seed.js)
-docs/
-  postman/ecommerce-api.postman_collection.json
-```
+۱. **نصب وابستگی‌ها:**
+   ```bash
+   npm install
+   ```
 
-## راه‌اندازی سریع
+۲. **ایجاد داده‌های اولیه:**
+   ```bash
+   npm run seed # یا node src/scripts/seed.js
+   ```
 
-### پیش‌نیاز
-- Node.js 18+
+۳. **اجرای پروژه:**
+   ```bash
+   npm start # یا node src/server.js
+   ```
+   پروژه روی `http://localhost:3000` اجرا می‌شود.
 
-### نصب
-```bash
-npm i
-```
+## دسترسی‌ها
+- **فروشگاه:** `http://localhost:3000/shop/index.html`
+- **پنل مدیریت:** `http://localhost:3000/admin/index.html` (نیاز به ورود با اکانت ادمین دارد)
+- **اکانت ادمین پیش‌فرض:** `admin@example.com` / `admin123`
+- **اکانت مشتری پیش‌فرض:** `user@example.com` / `user123`
 
-### تنظیم متغیرهای محیطی
-یک فایل `.env` بر اساس `.env.example` بسازید:
-```
-NODE_ENV=development
-PORT=3000
-JWT_SECRET=super_secret_key
-JWT_EXPIRES_IN=7d
+## اسکرین‌شات‌ها
 
-ADMIN_FULLNAME=Admin User
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=admin123
-```
+### صفحه اصلی فروشگاه
+![Shop Home](public/screenshots/shop_home.png)
 
-### ساخت دیتابیس و داده اولیه
-```bash
-npm run db:seed
-```
+### پنل مدیریت - داشبورد
+![Admin Dashboard](public/screenshots/admin_dashboard.png)
 
-### اجرا
-حالت توسعه:
-```bash
-npm run dev
-```
-حالت عادی:
-```bash
-npm start
-```
+### پنل مدیریت - لیست محصولات
+![Admin Products](public/screenshots/admin_products.png)
 
-### تست سریع API
-ورود ادمین:
-```bash
-curl -X POST http://localhost:3000/api/auth/login   -H "Content-Type: application/json"   -d '{"email":"admin@example.com","password":"admin123"}'
-```
-لیست محصولات:
-```bash
-curl http://localhost:3000/api/products
-```
+### صفحه ورود
+![Login](public/screenshots/login.png)
 
-## Postman
-فایل کالکشن: `docs/postman/ecommerce-api.postman_collection.json`  
-متغیرها:  
-- `baseUrl` = `http://localhost:3000/api`  
-- `authToken` = مقدار توکن خروجی لاگین
-
-## نکات
-- قیمت‌ها به صورت عدد صحیح (minor unit) ذخیره می‌شوند.
-- مسیرهای ادمین پشت `auth` و `isAdmin` محافظت می‌شوند.
-- برای جست‌وجوی عنوان محصول از `Op.like` استفاده کنید.
-
-## اسکریپت‌ها
-- `npm run dev` اجرای توسعه با nodemon
-- `npm start` اجرای عادی
-- `npm run db:sync` همگام‌سازی اسکیمای دیتابیس
-- `npm run db:seed` اجرای داده اولیه
+## مستندات API
+برای استفاده در اپلیکیشن موبایل، فایل `readmeapi.md` را مطالعه کنید.

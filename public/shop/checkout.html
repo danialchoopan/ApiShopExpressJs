@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسویه حساب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <h1 class="text-3xl font-bold mb-8">تسویه حساب</h1>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold mb-4">اطلاعات ارسال</h2>
+            <form id="order-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700">نام و نام خانوادگی</label>
+                    <input type="text" id="full_name" class="w-full border p-2 rounded mt-1" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700">آدرس</label>
+                    <textarea id="address" class="w-full border p-2 rounded mt-1" required></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-700">شهر</label>
+                        <input type="text" id="city" class="w-full border p-2 rounded mt-1" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700">تلفن</label>
+                        <input type="text" id="phone" class="w-full border p-2 rounded mt-1" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700">ثبت سفارش نهایی</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/shop.js"></script>
+    <script>
+        document.getElementById('order-form').onsubmit = async (e) => {
+            e.preventDefault();
+
+            // First, create an address
+            const token = shop.getToken();
+            const addrRes = await fetch('/api/addresses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    full_name: document.getElementById('full_name').value,
+                    line1: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    province: 'Tehran',
+                    phone: document.getElementById('phone').value,
+                    is_default_shipping: true
+                })
+            });
+            const addr = await addrRes.json();
+
+            if (addr.id) {
+                const orderRes = await shop.placeOrder(addr.id);
+                if (orderRes.id) {
+                    alert('سفارش شما با موفقیت ثبت شد. شماره سفارش: ' + orderRes.order_number);
+                    window.location.href = 'index.html';
+                } else {
+                    alert('خطا در ثبت سفارش');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

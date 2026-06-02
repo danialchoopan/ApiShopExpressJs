@@ -73,6 +73,22 @@ exports.getById = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
+exports.getStats = async (req, res, next) => {
+  try {
+    const totalOrders = await Order.count();
+    const totalSales = await Order.sum('total') || 0;
+    const pendingOrders = await Order.count({ where: { status: 'pending' } });
+    const productCount = await Product.count();
+
+    res.json({
+      totalOrders,
+      totalSales,
+      pendingOrders,
+      productCount
+    });
+  } catch (e) { next(e); }
+};
+
 exports.updateStatus = async (req, res, next) => {
   try {
     const { status, payment_status } = req.body;

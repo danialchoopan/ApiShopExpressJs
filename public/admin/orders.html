@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت سفارشات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex">
+    <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
+        <h1 class="text-2xl font-bold mb-8">مدیریت فروشگاه</h1>
+        <nav>
+            <ul class="space-y-4">
+                <li><a href="index.html" class="block hover:text-blue-400">داشبورد</a></li>
+                <li><a href="products.html" class="block hover:text-blue-400">محصولات</a></li>
+                <li><a href="orders.html" class="block text-blue-400">سفارشات</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="flex-1 p-10">
+        <h2 class="text-3xl font-bold mb-10">سفارشات</h2>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="p-4">شماره سفارش</th>
+                        <th class="p-4">تاریخ</th>
+                        <th class="p-4">مبلغ کل</th>
+                        <th class="p-4">وضعیت</th>
+                        <th class="p-4">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="order-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        async function loadOrders() {
+            const orders = await admin.fetchOrders();
+            const table = document.getElementById('order-table');
+            table.innerHTML = orders.map(o => `
+                <tr class="border-b">
+                    <td class="p-4">${o.order_number}</td>
+                    <td class="p-4">${new Date(o.createdAt).toLocaleDateString('fa-IR')}</td>
+                    <td class="p-4">${o.total.toLocaleString()} تومان</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-sm ${o.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                            ${o.status}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <button onclick="updateStatus(${o.id}, 'completed')" class="text-blue-600 hover:underline">تکمیل شده</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(id, status) {
+            await admin.updateOrderStatus(id, status);
+            loadOrders();
+        }
+
+        loadOrders();
+    </script>
+</body>
+</html>
