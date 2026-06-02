@@ -5,8 +5,8 @@ const { isSuperAdmin } = require('../middlewares/isAdmin');
 
 const router = Router();
 
-router.get('/', auth, ctrl.list);
-router.get('/:id', auth, ctrl.getById);
+router.get('/', auth, isSuperAdmin, ctrl.list);
+router.get('/:id', auth, isSuperAdmin, ctrl.getById);
 router.put('/:id', auth, isSuperAdmin, ctrl.update);
 router.delete('/:id', auth, isSuperAdmin, ctrl.remove);
 

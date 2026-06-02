@@ -6,19 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدیریت محصولات</title>
     <script src="/assets/js/tailwind.js"></script>
-        <style>
-        @font-face {
-            font-family: 'Vazirmatn';
-            src: url('/assets/css/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
-            font-weight: 400;
-        }
-        @font-face {
-            font-family: 'Vazirmatn';
-            src: url('/assets/css/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
-            font-weight: 700;
-        }
-        body { font-family: 'Vazirmatn', sans-serif; }
-    </style>
+        <link rel="stylesheet" href="/assets/css/vazirmatn.css">
+    <style>body { font-family: "Vazirmatn", sans-serif; }</style>
 </head>
 <body class="bg-gray-100 flex">
     <div class="w-64 bg-gray-800 text-white min-h-screen p-6">
@@ -103,13 +92,12 @@
         const user = JSON.parse(localStorage.getItem('user'));
         const nav = document.getElementById('sidebar-nav');
         nav.innerHTML = `
-            <ul class="space-y-4">
-                <li><a href="index.html" class="block py-2 px-4 rounded hover:bg-gray-700">داشبورد</a></li>
-                <li><a href="products.html" class="block py-2 px-4 rounded bg-blue-600 text-white">محصولات</a></li>
-                ${user.role === 'admin' ? `<li><a href="categories.html" class="block py-2 px-4 rounded hover:bg-gray-700">دسته‌بندی‌ها</a></li>` : ''}
-                ${user.role === 'admin' ? `<li><a href="users.html" class="block py-2 px-4 rounded hover:bg-gray-700">کاربران</a></li>` : ''}
-                <li><a href="orders.html" class="block py-2 px-4 rounded hover:bg-gray-700">سفارشات</a></li>
-                <li class="pt-8"><a href="/shop/index.html" class="block py-2 px-4 rounded border border-gray-600 text-center text-sm">مشاهده فروشگاه</a></li>
+            <ul class="space-y-2">
+                <li><a href="index.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">داشبورد</a></li>
+                <li><a href="products.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">محصولات</a></li>
+                ${user.role === "admin" ? `<li><a href="categories.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">دسته‌بندی‌ها</a></li>` : ""}
+                ${user.role === "admin" ? `<li><a href="users.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">کاربران</a></li>` : ""}
+                <li><a href="orders.html" class="block py-3 px-4 rounded-xl hover:bg-gray-800 transition">سفارشات</a></li>
             </ul>
         `;
 
