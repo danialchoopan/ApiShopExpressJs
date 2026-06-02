@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جزئیات محصول</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+    <title>جزئیات محصول - دانیال دیجی</title>
+    <script src="/assets/js/tailwind.js"></script>
+        <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+            font-weight: 700;
+        }
         body { font-family: 'Vazirmatn', sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50">
     <nav class="bg-white shadow-sm border-b p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-black text-red-600">دیجی کالا مینی</a>
+            <a href="index.html" class="text-2xl font-black text-blue-600">دانیال دیجی</a>
         </div>
     </nav>
 
     <div class="container mx-auto px-4 mt-10">
         <div id="product-detail" class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-10">
-            <!-- Loading -->
             <p class="text-center col-span-full py-20 text-gray-400">در حال بارگذاری...</p>
         </div>
 
         <div class="mt-12 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
             <h2 class="text-2xl font-bold mb-6 border-b pb-4">مشخصات فنی</h2>
-            <div id="attributes-table" class="space-y-4">
-                <!-- Attributes loaded here -->
-            </div>
+            <div id="attributes-table" class="space-y-4"></div>
         </div>
     </div>
 
@@ -45,7 +52,7 @@
                     </div>
                     <div class="flex space-x-2 space-x-reverse overflow-x-auto pb-2">
                         ${p.ProductImages.map(img => `
-                            <img src="${img.url}" onclick="document.getElementById('main-image').src='${img.url}'" class="w-20 h-20 border rounded-lg cursor-pointer hover:border-red-500 bg-white object-contain p-1">
+                            <img src="${img.url}" onclick="document.getElementById('main-image').src='${img.url}'" class="w-20 h-20 border rounded-lg cursor-pointer hover:border-blue-500 bg-white object-contain p-1">
                         `).join('')}
                     </div>
                 </div>
@@ -59,10 +66,10 @@
                     <div class="mt-auto bg-gray-50 p-6 rounded-xl border border-gray-100 flex justify-between items-center">
                         <div>
                             <span class="text-gray-500 block mb-1">قیمت فروش:</span>
-                            <span class="text-3xl font-black text-red-600">${p.price.toLocaleString()}</span>
+                            <span class="text-3xl font-black text-blue-600">${p.price.toLocaleString()}</span>
                             <span class="text-gray-600 mr-1 text-sm">تومان</span>
                         </div>
-                        <button onclick="addToCart(${p.id})" class="bg-red-500 text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-600 transition-colors">افزودن به سبد</button>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors">افزودن به سبد</button>
                     </div>
                 </div>
             `;
@@ -76,7 +83,7 @@
                     </div>
                 `).join('');
             } else {
-                attrTable.innerHTML = '<p class="text-gray-400">مشخصاتی برای این محصول ثبت نشده است.</p>';
+                attrTable.innerHTML = '<p class="text-gray-400">مشخصاتی ثبت نشده است.</p>';
             }
         }
 

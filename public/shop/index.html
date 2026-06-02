@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فروشگاه آنلاین</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+    <title>فروشگاه آنلاین دانیال دیجی</title>
+    <script src="/assets/js/tailwind.js"></script>
+        <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+            font-weight: 700;
+        }
         body { font-family: 'Vazirmatn', sans-serif; }
     </style>
 </head>
@@ -14,39 +24,35 @@
     <nav class="bg-white shadow-sm border-b p-4 sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4 space-x-reverse">
-                <a href="index.html" class="text-2xl font-black text-red-600">دیجی کالا مینی</a>
+                <a href="index.html" class="text-2xl font-black text-blue-600">دانیال دیجی</a>
                 <div class="relative hidden md:block">
-                    <input type="text" id="search-input" placeholder="جستجو در محصولات..." class="bg-gray-100 border-none rounded-lg py-2 px-10 w-96 focus:ring-2 focus:ring-red-500">
-                    <span class="absolute right-3 top-2.5 text-gray-400">🔍</span>
+                    <input type="text" id="search-input" placeholder="جستجو در محصولات..." class="bg-gray-100 border-none rounded-lg py-2 px-10 w-96 focus:ring-2 focus:ring-blue-500">
+                    <span class="absolute right-3 top-2.5 text-gray-400">جستجو</span>
                 </div>
             </div>
             <div class="flex items-center space-x-6 space-x-reverse">
                 <div id="user-nav">
                     <a href="login.html" class="border border-gray-300 px-4 py-2 rounded-lg text-gray-700 flex items-center">
-                        <span class="ml-2 text-xl">👤</span> ورود | ثبت‌نام
+                        ورود | ثبت‌نام
                     </a>
                 </div>
                 <a href="cart.html" class="relative">
-                    <span class="text-3xl text-gray-700">🛒</span>
+                    <span class="text-xl text-gray-700 font-bold">سبد خرید</span>
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 mt-8 flex space-x-6 space-x-reverse">
+    <div class="container mx-auto px-4 mt-8 flex flex-col lg:flex-row gap-6">
         <!-- Sidebar -->
-        <aside class="w-64 hidden lg:block bg-white p-6 rounded-xl border border-gray-200 h-fit">
+        <aside class="w-full lg:w-64 bg-white p-6 rounded-xl border border-gray-200 h-fit">
             <h2 class="text-lg font-bold mb-4 border-b pb-2">دسته‌بندی‌ها</h2>
-            <ul id="category-tree" class="space-y-3">
-                <!-- Loaded via JS -->
-            </ul>
+            <ul id="category-tree" class="space-y-3"></ul>
         </aside>
 
         <!-- Main -->
         <main class="flex-1">
-            <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <!-- Products will be loaded here -->
-            </div>
+            <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"></div>
         </main>
     </div>
 
@@ -58,10 +64,10 @@
             const tree = document.getElementById('category-tree');
             tree.innerHTML = categories.map(c => `
                 <li>
-                    <a href="?category_id=${c.id}" class="font-bold text-gray-800 hover:text-red-500">${shop.escapeHTML(c.name)}</a>
+                    <a href="?category_id=${c.id}" class="font-bold text-gray-800 hover:text-blue-500">${shop.escapeHTML(c.name)}</a>
                     ${c.children?.length ? `
-                        <ul class="mr-4 mt-2 space-y-1 text-sm text-gray-600">
-                            ${c.children.map(sub => `<li><a href="?category_id=${sub.id}" class="hover:text-red-500">${shop.escapeHTML(sub.name)}</a></li>`).join('')}
+                        <ul class="mr-4 mt-2 space-y-1 text-sm text-gray-600 border-r pr-2">
+                            ${c.children.map(sub => `<li><a href="?category_id=${sub.id}" class="hover:text-blue-500">${shop.escapeHTML(sub.name)}</a></li>`).join('')}
                         </ul>
                     ` : ''}
                 </li>
@@ -72,7 +78,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const catId = urlParams.get('category_id');
             const q = urlParams.get('q');
-
             let url = '/api/products?limit=20';
             if (catId) url += `&category_id=${catId}`;
             if (q) url += `&q=${q}`;
@@ -94,10 +99,10 @@
                     <div class="p-4 flex-1 flex flex-col">
                         <a href="product.html?id=${p.id}" class="text-sm font-bold text-gray-800 mb-2 h-10 overflow-hidden block">${shop.escapeHTML(p.title)}</a>
                         <div class="mt-auto flex justify-between items-end">
-                            <div class="text-red-600 font-bold text-lg">
+                            <div class="text-blue-600 font-bold text-lg">
                                 ${p.price.toLocaleString()} <span class="text-xs">تومان</span>
                             </div>
-                            <button onclick="addToCart(${p.id})" class="bg-red-500 text-white w-10 h-10 rounded-lg shadow-lg shadow-red-200 hover:bg-red-600 flex items-center justify-center text-2xl">+</button>
+                            <button onclick="addToCart(${p.id})" class="bg-blue-500 text-white w-10 h-10 rounded-lg shadow-lg shadow-blue-200 hover:bg-blue-600 flex items-center justify-center text-2xl">+</button>
                         </div>
                     </div>
                 </div>
@@ -110,16 +115,14 @@
         }
 
         document.getElementById('search-input').onkeypress = (e) => {
-            if (e.key === 'Enter') {
-                window.location.href = `?q=${e.target.value}`;
-            }
+            if (e.key === 'Enter') window.location.href = `?q=${e.target.value}`;
         };
 
         const user = shop.getUser();
         if (user) {
             document.getElementById('user-nav').innerHTML = `
-                <div class="flex items-center space-x-2 space-x-reverse">
-                    <span class="text-gray-700">${user.full_name}</span>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a href="profile.html" class="text-gray-700 font-bold hover:text-blue-600">حساب من</a>
                     <button onclick="shop.logout()" class="text-red-500 text-sm">خروج</button>
                     ${user.role !== 'customer' ? `<a href="/admin/index.html" class="bg-gray-800 text-white px-2 py-1 rounded text-xs">پنل مدیریت</a>` : ''}
                 </div>

@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدیریت دسته‌بندی‌ها</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+    <script src="/assets/js/tailwind.js"></script>
+        <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/assets/css/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+            font-weight: 700;
+        }
         body { font-family: 'Vazirmatn', sans-serif; }
     </style>
 </head>
@@ -61,11 +71,11 @@
         const nav = document.getElementById('sidebar-nav');
         nav.innerHTML = `
             <ul class="space-y-2">
-                <li><a href="index.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3">📊</span> داشبورد</a></li>
-                <li><a href="products.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3">🛍️</span> محصولات</a></li>
-                <li><a href="categories.html" class="flex items-center py-3 px-4 rounded-xl bg-blue-600 text-white font-bold"><span class="ml-3">📁</span> دسته‌بندی‌ها</a></li>
-                <li><a href="users.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3">👥</span> کاربران</a></li>
-                <li><a href="orders.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3">📝</span> سفارشات</a></li>
+                <li><a href="index.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3"></span> داشبورد</a></li>
+                <li><a href="products.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3"></span> محصولات</a></li>
+                <li><a href="categories.html" class="flex items-center py-3 px-4 rounded-xl bg-blue-600 text-white font-bold"><span class="ml-3"></span> دسته‌بندی‌ها</a></li>
+                <li><a href="users.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3"></span> کاربران</a></li>
+                <li><a href="orders.html" class="flex items-center py-3 px-4 rounded-xl hover:bg-gray-800 transition"><span class="ml-3"></span> سفارشات</a></li>
             </ul>
         `;
 

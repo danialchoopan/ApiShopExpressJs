@@ -37,3 +37,17 @@ exports.me = async (req, res, next) => {
     res.json(user);
   } catch (e) { next(e); }
 };
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findByPk(req.user.id);
+
+    const ok = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!ok) return res.status(400).json({ message: 'رمز عبور فعلی اشتباه است' });
+
+    user.password_hash = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: 'رمز عبور با موفقیت تغییر کرد' });
+  } catch (e) { next(e); }
+};

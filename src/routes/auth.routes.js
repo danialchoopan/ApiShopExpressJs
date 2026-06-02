@@ -8,5 +8,6 @@ const router = Router();
 router.post('/register', validateRegister, ctrl.register);
 router.post('/login', validateLogin, ctrl.login);
 router.get('/me', auth, ctrl.me);
+router.post('/change-password', auth, ctrl.changePassword);
 
 module.exports = router;
