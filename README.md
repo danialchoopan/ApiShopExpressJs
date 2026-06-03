@@ -14,6 +14,27 @@
 - **طراحی مدرن و پاک:** حذف ایموجی‌ها و استفاده از رابط کاربری مینیمال و حرفه‌ای.
 - **API استاندارد:** مستندات کامل برای اتصال اپلیکیشن‌های اندروید و iOS.
 
+## پیش‌نمایش
+
+### فروشگاه
+![فروشگاه](public/screenshots/shop_home.png)
+
+### داشبورد مدیریت
+![داشبورد](public/screenshots/admin_dashboard.png)
+
+### مدیریت محصولات
+![محصولات](public/screenshots/admin_products.png)
+
+### مدیریت سفارشات
+![سفارشات](public/screenshots/admin_orders.png)
+
+
+
+### پنل کاربری مشتری (پروفایل)
+![پنل کاربری](public/screenshots/user_profile.png)
+
+---
+
 ## راهنمای نصب
 
 ۱. **نصب پیش‌نیازها:**
@@ -36,25 +57,4 @@
 - **مدیر فروش:** `sales@example.com` / `sales123`
 - **مشتری:** `user@example.com` / `user123`
 
-## پیش‌نمایش
-
-### فروشگاه
-![فروشگاه](public/screenshots/shop_home.png)
-
-### داشبورد مدیریت
-![داشبورد](public/screenshots/admin_dashboard.png)
-
-### مدیریت محصولات
-![محصولات](public/screenshots/admin_products.png)
-
-### مدیریت سفارشات
-![سفارشات](public/screenshots/admin_orders.png)
-
-
-
-### پنل کاربری مشتری (پروفایل)
-![پنل کاربری](public/screenshots/user_profile.png)
-
----
-ساخته شده برای ارائه یک تجربه خرید عالی.
-دانیال
+ساخته شده برای ارائه یک تجربه خرید عالی
